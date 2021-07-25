@@ -66,6 +66,7 @@ static int hook_install(struct ftrace_hook *hook)
     hook->ops.flags = FTRACE_OPS_FL_SAVE_REGS | FTRACE_OPS_FL_RECURSION_SAFE |
                       FTRACE_OPS_FL_IPMODIFY;
 
+    // ste hook->address into filter hash
     err = ftrace_set_filter_ip(&hook->ops, hook->address, 0, 0);
     if (err) {
         printk("ftrace_set_filter_ip() failed: %d\n", err);
