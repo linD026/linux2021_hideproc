@@ -1,6 +1,5 @@
 # !/bin/bash
 # script.sh - get the parent pid
-echo child pid:
-read pid
+read -p "child pid:" pid
 echo parent pid is
-ps -o ppid= $pid
+ps -p $pid -o ppid=
